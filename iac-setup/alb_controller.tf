@@ -14,20 +14,24 @@ resource "azurerm_role_assignment" "alb_controller_can_read_managed_rg" {
   scope                = azurerm_kubernetes_cluster.this.node_resource_group_id
   role_definition_name = "Reader"
   principal_id         = azurerm_user_assigned_identity.alb_controller.principal_id
+  description          = "The identity shall be able to read the AKS managed RG because this is where the Gateway is deployed (gateway is managed by AKS in this scenario)"
 }
 
 resource "azurerm_role_assignment" "alb_controller_can_configure_gateway" {
   scope                = azurerm_kubernetes_cluster.this.node_resource_group_id
   role_definition_name = "AppGw for Containers Configuration Manager"
   principal_id         = azurerm_user_assigned_identity.alb_controller.principal_id
+  description          = "The identity shall be able to configure the Gateway (associations and frontends) deployed in the AKS managed RG"
 }
 
 resource "azurerm_role_assignment" "alb_controller_is_gateway_subnet_contributor" {
   scope                = azurerm_subnet.app_gw_containers.id
   role_definition_name = "Network Contributor"
   principal_id         = azurerm_user_assigned_identity.alb_controller.principal_id
+  description          = "The identity shall be able to associate the gateway to the subnet"
 }
 
+// Federation with the ALB controller identity in AKS
 resource "azurerm_federated_identity_credential" "alb_controller_aks" {
   name                = "azure-alb-identity" // ALB Controller requires a federated credential with the name of azure-alb-identity
   parent_id           = azurerm_user_assigned_identity.alb_controller.id

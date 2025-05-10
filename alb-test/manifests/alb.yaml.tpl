@@ -5,4 +5,4 @@ metadata:
   namespace: ${namespace}
 spec:
   associations:
-    - ${subnet_id}
+    - ${subnet_id} # Azure ARM resource ID
